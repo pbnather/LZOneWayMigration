@@ -1,7 +1,6 @@
 import { ethers } from 'hardhat'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import { expect } from 'chai'
-import { LZEndpointMock, Burner } from "../typechain-types"
 import chain_ids from "../constants/chainIds.json"
 
 const LZ_ENDPOINT_MOCK_ARTIFACT_NAME = 'LZEndpointMock'
@@ -16,17 +15,13 @@ describe('Burner', function () {
         // Contracts are deployed using the first signer/account by default
         const [owner, user] = await ethers.getSigners()
 
-        const LZEdnpointFactory = await ethers.getContractFactory(LZ_ENDPOINT_MOCK_ARTIFACT_NAME)
-        const lzEndpointMock = (await LZEdnpointFactory.deploy(chain_ids["avalanche"]))
+        const lzEndpointMock = await ethers.deployContract(LZ_ENDPOINT_MOCK_ARTIFACT_NAME, [chain_ids["avalanche"]])
         await lzEndpointMock.waitForDeployment()
 
-        const BurnerContractFactory = await ethers.getContractFactory(BURNER_ARTIFACT_NAME)
-        const burnerContract = (await BurnerContractFactory.deploy(lzEndpointMock.address, lzEndpointMock.address, chain_ids["ethereum"]))
+        const burnerContract = await ethers.deployContract(BURNER_ARTIFACT_NAME, [lzEndpointMock.getAddress(), lzEndpointMock.getAddress(), chain_ids["ethereum"]])
         await burnerContract.waitForDeployment()
 
         return {
-            BurnerContractFactory,
-            LZEdnpointFactory,
             burnerContract,
             lzEndpointMock,
             owner,
@@ -42,7 +37,7 @@ describe('Burner', function () {
 
         it('Should set lzEndpoint address correctly', async () => {
             const { burnerContract, lzEndpointMock } = await loadFixture(deployContractFixture)
-            expect(await burnerContract.lzEndpoint()).to.be.eq(lzEndpointMock.address)
+            expect(await burnerContract.lzEndpoint()).to.be.eq(await lzEndpointMock.getAddress())
         })
 
         it('Should set dstChainId correctly', async () => {
@@ -59,13 +54,12 @@ describe('Burner', function () {
     describe('EstimateFee', () => {
         it('Should fail on zero amount', async () => {
             const { burnerContract, user } = await loadFixture(deployContractFixture)
-            await expect(burnerContract.estimateFee(0, user.address)).to.be.revertedWith(ERROR_AMOUNT_ZERO)
+            await expect(burnerContract.estimateFee(0, user.address)).to.be.revertedWithCustomError(burnerContract, ERROR_AMOUNT_ZERO)
         })
 
         it('Should fail on dstAddress zero', async () => {
             const { burnerContract, user } = await loadFixture(deployContractFixture)
-            let action = burnerContract.estimateFee(1, ethers.ZeroAddress)
-            await expect(action).to.be.revertedWith(ERROR_DST_ADDRESS)
+            await expect(burnerContract.estimateFee(1, ethers.ZeroAddress)).to.be.revertedWithCustomError(burnerContract, ERROR_DST_ADDRESS)
         })
 
         it('Should return fee > 0', async () => {
