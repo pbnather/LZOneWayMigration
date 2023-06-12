@@ -60,7 +60,7 @@ contract Burner is LzApp, Pausable {
         if (msg.value < fee || fee == 0) revert TooSmallFee();
         if (_amount == 0) revert AmountIsZero();
         if (_dstAddress == address(0)) revert DstAddressIsZero();
-        token.safeTransferFrom(msg.sender, address(0), _amount);
+        token.safeTransferFrom(msg.sender, address(this), _amount);
 
         // Send tx to LayerZero Endpoint
         bytes memory payload = abi.encode(_dstAddress, _amount);
