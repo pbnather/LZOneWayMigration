@@ -1,6 +1,7 @@
 import { ethers } from 'hardhat'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import { expect } from 'chai'
+import { Burner, LZEndpointMock } from '../typechain-types'
 import chain_ids from "../constants/chainIds.json"
 
 const LZ_ENDPOINT_MOCK_ARTIFACT_NAME = 'LZEndpointMock'
@@ -15,18 +16,13 @@ describe('Burner', function () {
         // Contracts are deployed using the first signer/account by default
         const [owner, user] = await ethers.getSigners()
 
-        const lzEndpointMock = await ethers.deployContract(LZ_ENDPOINT_MOCK_ARTIFACT_NAME, [chain_ids["avalanche"]])
+        const lzEndpointMock = await ethers.deployContract(LZ_ENDPOINT_MOCK_ARTIFACT_NAME, [chain_ids["avalanche"]]) as LZEndpointMock
         await lzEndpointMock.waitForDeployment()
 
-        const burnerContract = await ethers.deployContract(BURNER_ARTIFACT_NAME, [lzEndpointMock.getAddress(), lzEndpointMock.getAddress(), chain_ids["ethereum"]])
+        const burnerContract = await ethers.deployContract(BURNER_ARTIFACT_NAME, [lzEndpointMock.getAddress(), lzEndpointMock.getAddress(), chain_ids["ethereum"]]) as Burner
         await burnerContract.waitForDeployment()
 
-        return {
-            burnerContract,
-            lzEndpointMock,
-            owner,
-            user,
-        }
+        return { burnerContract, lzEndpointMock, owner, user }
     }
 
     describe('Deployment', () => {
