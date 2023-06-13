@@ -8,7 +8,7 @@ import './tasks/migrate.task';
 import './tasks/pause.task';
 import './tasks/mintOwner.task';
 import './tasks/approve.task';
-import './tasks/checkTx.task';
+import './tasks/retryPayload.task';
 dotenv.config()
 
 /**
