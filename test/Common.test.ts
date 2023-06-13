@@ -34,24 +34,26 @@ export async function deployContractFixture() {
     const burnerContract = await ethers.deployContract(BURNER_ARTIFACT_NAME, [lzAvalancheEndpointMock.getAddress(), erc20Mock.getAddress(), chain_ids["ethereum"]]) as Burner
     await burnerContract.waitForDeployment()
 
-    const minterContract = await ethers.deployContract(MINTER_ARTIFACT_NAME, [lzEthereumEndpointMock.getAddress(), erc20Mock.getAddress(), chain_ids["avalanche"]]) as Minter
+    const minterContract = await ethers.deployContract(MINTER_ARTIFACT_NAME, [lzEthereumEndpointMock.getAddress(), erc20Mock.getAddress()]) as Minter
     await minterContract.waitForDeployment()
 
     await lzAvalancheEndpointMock.setDestLzEndpoint(await minterContract.getAddress(), await lzEthereumEndpointMock.getAddress())
     let remoteEthereumAndLocal = ethers.solidityPacked(['address', 'address'], [await minterContract.getAddress(), await burnerContract.getAddress()])
+    let remoteAvalancheAndLocal = ethers.solidityPacked(['address', 'address'], [await burnerContract.getAddress(), await minterContract.getAddress()])
     await burnerContract.setTrustedRemote(chain_ids["ethereum"], remoteEthereumAndLocal)
+    await minterContract.setTrustedRemote(chain_ids["avalanche"], remoteAvalancheAndLocal)
 
-    await erc20Mock.mint(user.address, 1000n)
+    await erc20Mock.mintOwner(user.address, 1000n)
     expect(await erc20Mock.balanceOf(user.address)).to.be.eq(1000n);
 
-    return { burnerContract, erc20Mock, lzAvalancheEndpointMock, lzEthereumEndpointMock, owner, user }
+    return { burnerContract, minterContract, erc20Mock, lzAvalancheEndpointMock, lzEthereumEndpointMock, owner, user }
 }
 
 export async function deployUnpausedContractFixture() {
     // Contracts are deployed using the first signer/account by default
-    const { burnerContract, erc20Mock, lzAvalancheEndpointMock, lzEthereumEndpointMock, owner, user } = await loadFixture(deployContractFixture)
+    const { burnerContract, erc20Mock, minterContract, lzAvalancheEndpointMock, lzEthereumEndpointMock, owner, user } = await loadFixture(deployContractFixture)
     await burnerContract.unpause()
-    return { burnerContract, erc20Mock, lzAvalancheEndpointMock, lzEthereumEndpointMock, owner, user }
+    return { burnerContract, erc20Mock, minterContract, lzAvalancheEndpointMock, lzEthereumEndpointMock, owner, user }
 }
 
 export default {}

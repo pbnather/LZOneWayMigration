@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "./interfaces/IMintable.sol";
 import "./lzApp/LzApp.sol";
 
-contract Minter is LzApp, Pausable {
+contract Minter is LzApp {
     error TooSmallFee();
     error AmountIsZero();
     error DstAddressIsZero();
@@ -17,19 +17,12 @@ contract Minter is LzApp, Pausable {
         uint64 indexed nonce
     );
 
-    IMintable immutable token;
-    uint16 immutable srcChainId;
+    IMintable public immutable token;
 
-    constructor(
-        address _lzEndpoint,
-        address _token,
-        uint16 _srcChainId
-    ) LzApp(_lzEndpoint) {
+    constructor(address _lzEndpoint, address _token) LzApp(_lzEndpoint) {
         require(_lzEndpoint != address(0));
         require(_token != address(0));
         token = IMintable(_token);
-        srcChainId = _srcChainId;
-        _pause();
     }
 
     function _blockingLzReceive(
@@ -38,20 +31,12 @@ contract Minter is LzApp, Pausable {
         uint64 _nonce,
         bytes memory _payload
     ) internal virtual override {
-        require(_srcChainId == srcChainId);
+        // Authorization is done using TrustedRemotes (LZApp.sol)
         (address user, uint256 amount) = abi.decode(
             _payload,
             (address, uint256)
         );
         token.mint(user, amount);
         emit MigrationFinished(user, amount, _nonce);
-    }
-
-    function pause() external onlyOwner {
-        _pause();
-    }
-
-    function unpause() external onlyOwner {
-        _unpause();
     }
 }
