@@ -2,7 +2,6 @@ import { ethers } from 'hardhat'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import { expect } from 'chai'
 import chain_ids from "../constants/chainIds.json"
-import "./common.test"
 import { deployContractFixture, ERROR_AMOUNT_ZERO, ERROR_DST_ADDRESS, deployUnpausedContractFixture, ERROR_TOO_SMALL_FEE, ERROR_ALLOWANCE, ERROR_ERC20_EXCEEDS_BALANCE, ERROR_PAUSABLE_PAUSED, ERROR_PAUSABLE_UNPAUSED, ERROR_OWNABLE } from './common.test'
 
 describe('Burner', function () {

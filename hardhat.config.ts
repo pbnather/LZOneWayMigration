@@ -1,6 +1,14 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
+import '@nomicfoundation/hardhat-ethers';
+import 'hardhat-deploy';
 import * as dotenv from "dotenv";
+import './tasks/setTrustedRemote.task';
+import './tasks/migrate.task';
+import './tasks/pause.task';
+import './tasks/mintOwner.task';
+import './tasks/approve.task';
+import './tasks/checkTx.task';
 dotenv.config()
 
 /**
@@ -26,6 +34,16 @@ const config: HardhatUserConfig = {
     goerli: {
       chainId: 5,
       url: "https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161", // public infura endpoint
+      accounts: [process.env.PRIVATE_KEY as string]
+    },
+    fantom: {
+      url: `https://rpcapi.fantom.network`,
+      chainId: 250,
+      accounts: [process.env.PRIVATE_KEY as string]
+    },
+    bsc: {
+      url: "https://bsc-dataseed1.binance.org",
+      chainId: 56,
       accounts: [process.env.PRIVATE_KEY as string]
     },
   },

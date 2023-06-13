@@ -22,19 +22,19 @@ export async function deployContractFixture() {
     // Contracts are deployed using the first signer/account by default
     const [owner, user] = await ethers.getSigners()
 
-    const lzAvalancheEndpointMock = await ethers.deployContract(LZ_ENDPOINT_MOCK_ARTIFACT_NAME, [chain_ids["avalanche"]]) as LZEndpointMock
+    const lzAvalancheEndpointMock = await ethers.deployContract(LZ_ENDPOINT_MOCK_ARTIFACT_NAME, [chain_ids["avalanche"]]) as unknown as LZEndpointMock
     await lzAvalancheEndpointMock.waitForDeployment()
 
-    const lzEthereumEndpointMock = await ethers.deployContract(LZ_ENDPOINT_MOCK_ARTIFACT_NAME, [chain_ids["ethereum"]]) as LZEndpointMock
+    const lzEthereumEndpointMock = await ethers.deployContract(LZ_ENDPOINT_MOCK_ARTIFACT_NAME, [chain_ids["ethereum"]]) as unknown as LZEndpointMock
     await lzEthereumEndpointMock.waitForDeployment()
 
-    const erc20Mock = await ethers.deployContract(ERC20_MOCK_ARTIFACT_NAME, ["TOKEN", "TKN"]) as ERC20Mock
+    const erc20Mock = await ethers.deployContract(ERC20_MOCK_ARTIFACT_NAME, ["TOKEN", "TKN"]) as unknown as ERC20Mock
     await erc20Mock.waitForDeployment()
 
-    const burnerContract = await ethers.deployContract(BURNER_ARTIFACT_NAME, [lzAvalancheEndpointMock.getAddress(), erc20Mock.getAddress(), chain_ids["ethereum"]]) as Burner
+    const burnerContract = await ethers.deployContract(BURNER_ARTIFACT_NAME, [lzAvalancheEndpointMock.getAddress(), erc20Mock.getAddress(), chain_ids["ethereum"]]) as unknown as Burner
     await burnerContract.waitForDeployment()
 
-    const minterContract = await ethers.deployContract(MINTER_ARTIFACT_NAME, [lzEthereumEndpointMock.getAddress(), erc20Mock.getAddress()]) as Minter
+    const minterContract = await ethers.deployContract(MINTER_ARTIFACT_NAME, [lzEthereumEndpointMock.getAddress(), erc20Mock.getAddress()]) as unknown as Minter
     await minterContract.waitForDeployment()
 
     await lzAvalancheEndpointMock.setDestLzEndpoint(await minterContract.getAddress(), await lzEthereumEndpointMock.getAddress())
