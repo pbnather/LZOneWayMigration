@@ -39,9 +39,11 @@ Users will send their ERC20 tokens to `Burner` contract on source chain, and thr
 1. Approve amount of ERC20 to migrate to `Burner` contract.
 2. Call `estimateFee()` of `Burner` contract. 
 3. Call `migrate()` of `Burner` contract, with `fee` copied from `estimateFee()` output.
+   
     **Also `msg.value` in native tokens should match `fee`.**
-4. Copy tx hash, and check your migration on [LayerZero Scan](https://layerzeroscan.com/)
-5. If message Status is `Delivered`, but Destination transaction error is `Stored payload`, 
+   
+5. Copy tx hash, and check your migration on [LayerZero Scan](https://layerzeroscan.com/)
+6. If message Status is `Delivered`, but Destination transaction error is `Stored payload`, 
 refer to troubleshooting down below, otherwise migration should be succesfull.  
 
 You can also listen for `MigrationStarted` and `MigrationFinished` events.
